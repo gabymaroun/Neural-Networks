@@ -18,11 +18,12 @@ import pandas as pd
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-Le fichier mnist_all.csv contenant les données est fourni au format .csv sans entête et avec la virgule comme séparateur provient d’une extraction de la base MNIST 1 . Ce fichier comporte 70000 images à répartir dans 3 fichiers afin d’établir les corpus d’apprentissage, de test et de validation. Chaque ligne du fichier représente une petite image carrée normalisées de 28 pixels de côté numérisation en 256 niveaux de gris de chiffres manuscrits. La normalisation a été réalisée automatiquement en calculant le centre de masse des pixels, l’image est ensuite translatée de manière à positionner ce point au centre de la grille de 28x28.
 
-Chaque ligne est composées de 1+ 784 colonnes du fichier. La première colonne correspond à l’encodage du label (valeur de 0 à 9 correspondant aux 10 chiffres), les 784 colonnes à l’encodage de l’imagette de 28x28 tel que représenté dans la Figure 2 avec le réel 0.0 pour la couleur blanche et du réel 1.0 au réel 255.0 pour les niveaux de gris.
+Le fichier mnist_all.csv contenant les données est fourni au format .csv sans en-tête et avec la virgule comme séparateur provient d'une extraction de la base de données MNIST 1. Ce fichier contient 70 000 images à distribuer en 3 fichiers afin d'établir les corpus d'apprentissage, de test et de validation. Chaque ligne du fichier représente une petite image carrée normalisée de 28 pixels de côté, numérisée en 256 niveaux de gris de nombres manuscrits. La normalisation a été effectuée automatiquement en calculant le centre de masse des pixels, l'image est ensuite traduite de manière à positionner ce point au centre de la grille 28x28.
 
-Pour ne pas ecrire le chemin ou on a mis nos fichiers chaque fois, on a creer un variable globale indiquant ce chemin pour etre utiliser pour la suite:
+Chaque ligne est composée de 1+ 784 colonnes du fichier. La première colonne correspond à l'encodage de l'étiquette (valeur de 0 à 9 correspondant aux 10 chiffres), les 784 colonnes à l'encodage de la vignette 28x28 comme le montre la figure 2 avec le vrai 0,0 pour la couleur blanche et le réel 1,0 à vrai 255,0 pour les niveaux de gris.
+
+Pour ne pas écrire le chemin où nous plaçons nos fichiers à chaque fois, nous devons créer une variable globale indiquant ce chemin à utiliser pour les éléments suivants:
 
 In [3]:
 directoryFile = "C:/Users/Gaby\'s/Desktop/Semestre 2 UPPA/Réseau Neurones/Projet"
@@ -41,6 +42,7 @@ def csv_reader(file, separator = ",", path= "./", header = False):
             print("ERROR")
             exit()
     return data
+    
 On a chargé les données dans data de la manière suivante:
 
 In [5]:
@@ -280,6 +282,7 @@ In [14]:
 shuffled_test = shuffle_batch(test_tensorflow_set, 28)
 shuffled_validation = shuffle_batch(validation_tensorflow_set, 28)
 shuffled_train = shuffle_batch(train_tensorflow_set, 28)
+
 5. une fonction qui permet de définir le modèle de réseau de neurone que l’on souhaite exécuter :
 — Le modèle sequential de tensorflow est un empilement linéaire de couches, autrement dit un perceptron multicouche.
 Dans notre modèle du perceptron mutlicouche, on choisit comme des couches de convolution 2D qui est utilisé pour les images 2D comme dans notre cas et des couche d'opération de regroupement maximale pour les données spatiales. Pour commencer c'etait la couche conv2D puis une couche MaxPooling2D et on a repeter ce choix une deuxieme fois puis on a mis une troisième couche conv2D avec un mode d'activation spécifique.
@@ -367,9 +370,10 @@ def compileRN(path="./", load=False, opt='Adamax'):
     #               metrics=['mse'])
 
     return myModel
-La fonction fitModel compare les résultats entre 2 dataset, celle du train et celle de validation, et nous renvoit le pourcentage de précision de notre modèle, en plus du pourcentage des valeur perdues au moment de l'execution.
 
-Tout la demarche sera sauvegarder dans un fichier pour les récupèrer après en cas de demande à l'aide de tf.keras.callbacks.ModelCheckpoint
+La fonction fitModel compare les résultats entre 2 jeux de données, celui du train et celui de la validation, et retourne le pourcentage de précision de notre modèle, en plus du pourcentage des valeurs perdues au moment de l'exécution.
+
+L'ensemble du processus sera enregistré dans un fichier pour les récupérer ensuite si demandé à l'aide de tf.keras.callbacks.ModelCheckpoint
 
 In [17]:
 def fitModel(shuffled_train,shuffled_validation, epochsN = 3, 
@@ -393,14 +397,15 @@ In [18]:
 def evaluateModel(myModel):  
     loss, accuracy = myModel.evaluate(shuffled_test, verbose=2)
     return loss, accuracy
+    
 Expérimentation et discussion des résultats
-Dans cette deuxième partie il sera nécessaire d’ajouter du code source pour permettre l’affichage graphique des différentes informations, d’où l’utilisation de la bibliothèque matplotlib
+Dans cette deuxième partie il sera nécessaire d'ajouter du code source pour permettre l'affichage graphique de différentes informations, d'où l'utilisation de la bibliothèque matplotlib
 
-l’expérimentation portera sur l’étude puis le choix des différentes hyper-paramètres (nombre de couches cachées, nombre de cellules par couche cachée, type de fonction d’activation, taille du batch, . . . ) afin d’obtenir la meilleure configuration.
-Le premier objectif étant d’obtenir un taux d’erreur de catégorisation le plus faible possible lors de la phase d’apprentissage et de test.
-Le deuxième objectif est d’obtenir les meilleurs taux de réussite sur les chiffres manuscrits de la base de validation.
-Il sera donc nécessaire d’avoir testé et de présenter les résultats obtenus sur au minimum 3 configurations différentes.
-Une description détaillée de la démarche adoptée pour réaliser l’expérimentation doit être donnée et illustrée dans cette partie.
+L'expérimentation portera sur l'étude puis le choix des différents hyper-paramètres (nombre de couches cachées, nombre de cellules par couche cachée, type de fonction d'activation, taille du lot, etc.) afin d'obtenir la meilleure configuration.
+Le premier objectif est d'obtenir le taux d'erreur de catégorisation le plus bas possible pendant la phase d'apprentissage et de test.
+Le deuxième objectif est d'obtenir les meilleurs taux de réussite sur les chiffres manuscrits de la base de validation.
+Il faudra donc avoir testé et présenter les résultats obtenus sur au moins 3 configurations différentes.
+Une description détaillée de l'approche adoptée pour réaliser l'expérience doit être donnée et illustrée dans cette partie.
 
 In [19]:
 myModel = fitModel(shuffled_train, shuffled_validation, epochsN = 3, pathf =directoryFile)
